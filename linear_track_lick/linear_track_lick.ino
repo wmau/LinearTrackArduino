@@ -1,4 +1,3 @@
-#include <bserial.h>
 #include <TimedAction.h>
 #include <Wire.h>
 #include "Adafruit_MPR121.h"
@@ -8,12 +7,10 @@
 #endif
 
 //miniscope syncing
-bInt miniscope_frame;
-volatile byte eventcode;
-const byte miniscope_pin = 13;
+int miniscope_pin = 2;
 
 // define ports corresponding to relays/solenoids here.
-int valves[] = {2, 3, 4, 5, 6, 7};
+int valves[] = {3, 4, 5, 6, 7, 8};
 
 // define rewarded relays/solenoids here.
 boolean rewarded[] = {1, 0, 0, 1, 0, 1};
@@ -31,31 +28,19 @@ bool justdrank[] = {0, 0, 0, 0, 0, 0};
 Adafruit_MPR121 cap = Adafruit_MPR121();
 uint16_t curr_touched = 0;
 
-void reply() {
-  bULong t; 
-  t._ul = millis();
-  if (eventcode == 255) { 
-    Serial.write(eventcode);
-    Serial.write(t._by, 4);
-    Serial.write(miniscope_frame._by, 2); 
-    Serial.println("test");
-  }
-  else {
-    Serial.write(eventcode);
-    Serial.write(t._by, 4); 
-    Serial.println("test");
-  }
-}
+//miniscope
+int miniscope_frame = 0;
 
 void check_miniscope() {
-  eventcode = 255;
-  reply();
-  miniscope_frame._in += 1;
+  miniscope_frame += 1;
 }
 
 // function for writing lick timestamps.
 void record_lick() {
-  Serial.println(String(i));
+  Serial.print(String(i));
+  Serial.print("\t");
+  Serial.print(String(miniscope_frame));
+  Serial.println();
 }
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
@@ -115,7 +100,6 @@ void setup() {
 
   pinMode(miniscope_pin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(miniscope_pin), check_miniscope, CHANGE);
-  miniscope_frame._in = 0;
 
   cap.setThresholds(2,1);
 }
