@@ -1,3 +1,4 @@
+#include <bserial.h>
 #include <TimedAction.h>
 #include <Wire.h>
 #include "Adafruit_MPR121.h"
@@ -5,6 +6,11 @@
 #ifndef _BV
 #define _BV(bit) (1 << (bit))
 #endif
+
+//miniscope syncing
+bInt miniscope_frame;
+volatile byte eventcode;
+const byte miniscope_pin = 13;
 
 // define ports corresponding to relays/solenoids here.
 int valves[] = {2, 3, 4, 5, 6, 7};
@@ -25,6 +31,27 @@ bool justdrank[] = {0, 0, 0, 0, 0, 0};
 Adafruit_MPR121 cap = Adafruit_MPR121();
 uint16_t curr_touched = 0;
 
+void reply() {
+  bULong t; 
+  t._ul = millis();
+  if (eventcode == 255) { 
+    Serial.write(eventcode);
+    Serial.write(t._by, 4);
+    Serial.write(miniscope_frame._by, 2); 
+    Serial.println("test");
+  }
+  else {
+    Serial.write(eventcode);
+    Serial.write(t._by, 4); 
+    Serial.println("test");
+  }
+}
+
+void check_miniscope() {
+  eventcode = 255;
+  reply();
+  miniscope_frame._in += 1;
+}
 
 // function for writing lick timestamps.
 void record_lick() {
@@ -85,6 +112,10 @@ void setup() {
     digitalWrite(valves[j], HIGH);
     pinMode(valves[j], OUTPUT);
   }
+
+  pinMode(miniscope_pin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(miniscope_pin), check_miniscope, CHANGE);
+  miniscope_frame._in = 0;
 
   cap.setThresholds(2,1);
 }
