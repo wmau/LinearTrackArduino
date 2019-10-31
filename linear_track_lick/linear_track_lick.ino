@@ -6,6 +6,8 @@
 #define _BV(bit) (1 << (bit))
 #endif
 
+char handshake;
+
 //miniscope syncing
 int miniscope_pin = 2;
 
@@ -33,13 +35,16 @@ int miniscope_frame = 0;
 
 void check_miniscope() {
   miniscope_frame += 1;
+  //Serial.println(String(miniscope_frame));
 }
 
 // function for writing lick timestamps.
 void record_lick() {
   Serial.print(String(i));
-  Serial.print("\t");
+  Serial.print(", ");
   Serial.print(String(miniscope_frame));
+  Serial.print(", ");
+  Serial.print(String(millis()));
   Serial.println();
 }
 
@@ -69,11 +74,16 @@ void lap() {
   for (int c = 0; c < nSensors; c++) {
     justdrank[c] = false;
   }
-  Serial.println("Lap");
+  Serial.print("Lap");
+  Serial.print(", ");
+  Serial.print(miniscope_frame);
+  Serial.print(", ");
+  Serial.print(String(millis()));
+  Serial.println();
 }
 
 // define record_lick threading.
-TimedAction lickThread = TimedAction(50, record_lick);
+TimedAction lickThread = TimedAction(30, record_lick);
 
 // ***************** SETUP ***************
 void setup() {
@@ -90,7 +100,6 @@ void setup() {
     Serial.println("Capacitive touch sensor not found. Check wiring.");
     while (1);
   }
-  Serial.println("Sensor found!");
 
   // define all the relay ports as output.
   for (int j = 0; j < nSensors; j++) {
@@ -102,6 +111,14 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(miniscope_pin), check_miniscope, CHANGE);
 
   cap.setThresholds(2,1);
+
+  while (handshake != 'g') {
+    if (Serial.available() > 0) {
+      handshake = Serial.read();
+    }
+  }
+
+  Serial.println(millis());
 }
 
 // ***************** LOOPITY LOOP ***************
