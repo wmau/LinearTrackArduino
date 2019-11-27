@@ -16,10 +16,10 @@ int miniscope_pin = 2;
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {1, 0, 0, 1, 0, 1, 0, 0};
+boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 // define duration of solenoid opening (ms).
-int pumpOpen = 50;
+int pumpOpen = 20; //10
 
 // number of ports and misc variables.
 int nSensors = sizeof(valves) / sizeof(valves[0]);
@@ -27,6 +27,7 @@ int nVisits = 0;          //number of visits this lap.
 int i = 0;                //for iteration.
 bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
 int miniscope_frame = 0;  //miniscope frame counter.
+int nRewarded = 0;
 
 // define capacitive sensor stuff.
 Adafruit_MPR121 cap = Adafruit_MPR121();
@@ -65,7 +66,7 @@ void count_visits() {
     nVisits += val;
 
     // If there have been three visits, reset the counts for each well.
-    if (nVisits >= 3) {
+    if (nVisits >= nRewarded) {
       lap();
     }
   }
@@ -87,7 +88,7 @@ void lap() {
 }
 
 // define record_lick threading.
-TimedAction lickThread = TimedAction(50, record_lick);
+TimedAction lickThread = TimedAction(35, record_lick);
 
 // ***************** SETUP ***************
 void setup() {
@@ -116,7 +117,13 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(miniscope_pin), advance_miniscope_frame, CHANGE);
 
   // set capacitive sensor thresholds here. 
-  cap.setThresholds(2,1);
+  cap.setThresholds(3, 2);
+
+  for (i = 0; i < nSensors; i++){
+   if (rewarded[i]){
+    nRewarded++;
+     }
+  }
 
   // wait for handshake signal from Python function. To start the program, 
   // Python must write 'g' to the Serial port. I think single quotes are required. 
@@ -150,7 +157,7 @@ void loop() {
         lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Flag port after drinking.
-        justdrank[i] = true;
+        justdrank[i] = 1;
 
         //Find total number of visits and reset port mask if lap elapsed.
         count_visits();

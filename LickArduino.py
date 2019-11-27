@@ -62,7 +62,7 @@ def initialize(com_port=default_port):
     return ser, t, clock_t
 
 def read_Arduino(com_port=default_port,
-                 directory=r'C:\Users\wm228\Documents\General\Workspace'):
+                 directory=r'F:\Data\Will\Test'):
     """
     Read Arduino serial writes and saves to a txt file continuously.
     Arduino must be plugged in or you will error.
