@@ -19,7 +19,7 @@ int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 // define duration of solenoid opening (ms).
-int pumpOpen = 20; //10
+int pumpOpen = 15; //10
 
 // number of ports and misc variables.
 int nSensors = sizeof(valves) / sizeof(valves[0]);
@@ -39,14 +39,18 @@ void advance_miniscope_frame() {
   //Serial.println(String(miniscope_frame)); //debugging purposes. 
 }
 
+void write_timestamp(String val) {
+  Serial.print(val);
+  Serial.print(", ");
+  Serial.print(miniscope_frame);  //miniscope frame number. 
+  Serial.print(", ");
+  Serial.print(String(millis())); //timestamp in ms (relative to Arduino reboot).
+  Serial.println();
+}
+
 // function for writing lick timestamps.
 void record_lick() {
-  Serial.print(String(i));          // port number that was drank. 
-  Serial.print(", ");
-  Serial.print(String(miniscope_frame));  //miniscope frame number. 
-  Serial.print(", ");
-  Serial.print(String(millis()));   //timestamp in ms (relative to Arduino reboot). 
-  Serial.println();                 //write new line.
+  write_timestamp(String(i));
 }
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
@@ -54,6 +58,8 @@ void dispense_water(int valve) {
   digitalWrite(valve, LOW);
   delay(pumpOpen);  // open for this long (ms).
   digitalWrite(valve, HIGH);
+
+  write_timestamp("Water");
 }
 
 // Function for counting number of visits this lap.
@@ -66,7 +72,7 @@ void count_visits() {
     nVisits += val;
 
     // If there have been three visits, reset the counts for each well.
-    if (nVisits >= nRewarded) {
+    if (nVisits >= 6) {
       lap();
     }
   }
@@ -79,12 +85,22 @@ void lap() {
   for (int c = 0; c < nSensors; c++) {
     justdrank[c] = false;
   }
-  Serial.print("Lap");
-  Serial.print(", ");
-  Serial.print(miniscope_frame);  //miniscope frame number. 
-  Serial.print(", ");
-  Serial.print(String(millis())); //timestamp in ms (relative to Arduino reboot).
-  Serial.println();
+
+  write_timestamp("Lap");
+}
+
+void recalibrate() {
+    // Clean the I2C Bus
+    pinMode(A5, OUTPUT);
+    for (int i = 0; i < 8; i++) {
+     
+      // Toggle the SCL pin eight times to reset any errant commands received by the slave boards.
+      digitalWrite(A5, HIGH);
+      delayMicroseconds(3);
+      digitalWrite(A5, LOW);
+      delayMicroseconds(3);
+    }
+    pinMode(A5, INPUT);
 }
 
 // define record_lick threading.
@@ -140,6 +156,7 @@ void setup() {
 
 // ***************** LOOPITY LOOP ***************
 void loop() {
+  recalibrate();
   // get capacitive sensor input. 
   curr_touched = cap.touched();
 
@@ -154,6 +171,7 @@ void loop() {
       if (rewarded[i] & !justdrank[i]) {
         //Dispense water.
         dispense_water(valves[i]);
+        delay(30);
         lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Flag port after drinking.
@@ -161,6 +179,7 @@ void loop() {
 
         //Find total number of visits and reset port mask if lap elapsed.
         count_visits();
+
       }
     }
   }

@@ -5,15 +5,30 @@
 #define _BV(bit) (1 << (bit)) 
 #endif
 
-int sensors[] = {2, 3};
+int sensors[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
-int valves[] = {2, 3};
+int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 int pumpOpen = 200;
+uint16_t curr_touched;
 
 int nSensors = sizeof(sensors) / sizeof(int);
 
 Adafruit_MPR121 cap = Adafruit_MPR121();
+
+void recalibrate() {
+    // Clean the I2C Bus
+    pinMode(A5, OUTPUT);
+    for (int i = 0; i < 8; i++) {
+     
+      // Toggle the SCL pin eight times to reset any errant commands received by the slave boards.
+      digitalWrite(A5, HIGH);
+      delayMicroseconds(3);
+      digitalWrite(A5, LOW);
+      delayMicroseconds(3);
+    }
+    pinMode(A5, INPUT);
+}
 
 void setup() {
   Serial.begin(9600);
@@ -41,15 +56,23 @@ void setup() {
     digitalWrite(valves[i], HIGH);
     pinMode(valves[i], OUTPUT);
   }
+
+  cap.setThresholds(3, 2);
+
 }
 
 void loop() {
-
+  recalibrate();
+  // get capacitive sensor input. 
+  curr_touched = cap.touched();
+  
   for (byte i = 0; i < nSensors; i++){
-    if (cap.touched() & _BV(i)){
+    if (curr_touched & _BV(i)){
       digitalWrite(valves[i], LOW);
       delay(pumpOpen);
       digitalWrite(valves[i], HIGH);
+
+      delay(500);
     }
   }
 }
