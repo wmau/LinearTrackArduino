@@ -174,6 +174,10 @@ void setup() {
     }
   }
 
+  // At this point, the Arduino will reboot and will be unable to perform
+  // any operations for about 1.4 seconds. This is measured in the variable
+  // called "offset". 
+
   // print the current timestamp (in milliseconds) relative to when the Arduino
   // rebooted (from Python sync). 
   offset = millis();
@@ -185,12 +189,12 @@ void setup() {
 
 // ***************** LOOPITY LOOP ***************
 void loop() {
-  // stop the recording at the defined time. 
+  // stop the recording at the defined time. Be sure to compensate for the offset.
   if (millis() >= (duration + offset)) {
     stop_recording();
   }
 
-  // tecalibrate capacitive sensor to address possible noise. 
+  // recalibrate capacitive sensor to address possible noise. 
   recalibrate();
   
   // get capacitive sensor input. 
