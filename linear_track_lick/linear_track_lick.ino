@@ -6,29 +6,34 @@
 #define _BV(bit) (1 << (bit))
 #endif
 
-// define the character variable for interfacing with Python.
-char handshake;
-
-//define miniscope syncing pin (must be 2 on Arduino Uno). 
+//define miniscope syncing pin (must be 2 on Arduino Uno). Do not use 13 on Uno.
 int miniscope_pin = 2;
 
-// define ports corresponding to relays/solenoids/water ports here.
+//define pin for triggering acquisition from DAQ box. Do not use 13 on Uno.
+int trigger_pin = 12;
+
+// define pins corresponding to relays/solenoids/water ports here.
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};
-//boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};
+boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
+//boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
-int pumpOpen = 15; //10
+int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
+
+// define length of recording here (ms).
+unsigned long duration = 20000;
 
 // number of ports and misc variables.
+char handshake;
 int nSensors = sizeof(valves) / sizeof(valves[0]);
 int nVisits = 0;          //number of visits this lap.
 int i = 0;                //for iteration.
 bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
 int miniscope_frame = 0;  //miniscope frame counter.
-int nRewarded = 0;
+int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
+unsigned long offset;     //time in between Arduino reboot and first action it can perform.
 
 // define capacitive sensor stuff.
 Adafruit_MPR121 cap = Adafruit_MPR121();
@@ -40,6 +45,7 @@ void advance_miniscope_frame() {
   //Serial.println(String(miniscope_frame)); //debugging purposes. 
 }
 
+// function for writing information to serial port (converted to txt by Python function read_Arduino())
 void write_timestamp(String val) {
   Serial.print(val);
   Serial.print(", ");
@@ -60,6 +66,7 @@ void dispense_water(int valve) {
   delay(pumpOpen);  // open for this long (ms).
   digitalWrite(valve, HIGH);
 
+  // Also tell computer that water was delivered. 
   write_timestamp("Water");
 }
 
@@ -72,7 +79,7 @@ void count_visits() {
     int val = justdrank[well];
     nVisits += val;
 
-    // If there have been three visits, reset the counts for each well.
+    // If there have been N visits, reset the counts for each well.
     if (nVisits >= nRewarded) {
       lap();
     }
@@ -90,6 +97,9 @@ void lap() {
   write_timestamp("Lap");
 }
 
+
+// function for resetting the capacitive sensor. Helps with noise issues 
+// from relay board. 
 void recalibrate() {
     // Clean the I2C Bus
     pinMode(A5, OUTPUT);
@@ -102,6 +112,17 @@ void recalibrate() {
       delayMicroseconds(3);
     }
     pinMode(A5, INPUT);
+}
+
+// function for triggering Miniscope recording. Make sure "Trigger Ext" is checked.
+void start_recording() {
+  digitalWrite(trigger_pin, HIGH);
+}
+
+
+// function for stopping Miniscope recording. Make sure "Trigger Ext" is checked.
+void stop_recording() {
+  digitalWrite(trigger_pin, LOW);
 }
 
 // define record_lick threading.
@@ -129,13 +150,16 @@ void setup() {
     pinMode(valves[j], OUTPUT);
   }
 
+
   // define the miniscope pin and make an interrupt for counting miniscope frames.
   pinMode(miniscope_pin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(miniscope_pin), advance_miniscope_frame, CHANGE);
 
+
   // set capacitive sensor thresholds here. 
   cap.setThresholds(3, 2);
 
+  // count number of rewarded ports.
   for (i = 0; i < nSensors; i++){
    if (rewarded[i]){
     nRewarded++;
@@ -152,12 +176,23 @@ void setup() {
 
   // print the current timestamp (in milliseconds) relative to when the Arduino
   // rebooted (from Python sync). 
-  Serial.println(millis());
+  offset = millis();
+  Serial.println(offset);
+
+  // begin the Miniscope recording. 
+  start_recording();
 }
 
 // ***************** LOOPITY LOOP ***************
 void loop() {
+  // stop the recording at the defined time. 
+  if (millis() >= (duration + offset)) {
+    stop_recording();
+  }
+
+  // tecalibrate capacitive sensor to address possible noise. 
   recalibrate();
+  
   // get capacitive sensor input. 
   curr_touched = cap.touched();
 
