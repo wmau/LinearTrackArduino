@@ -16,7 +16,8 @@ int miniscope_pin = 2;
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};
+boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};
+//boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};
 
 // define duration of solenoid opening (ms).
 int pumpOpen = 15; //10
@@ -72,7 +73,7 @@ void count_visits() {
     nVisits += val;
 
     // If there have been three visits, reset the counts for each well.
-    if (nVisits >= 6) {
+    if (nVisits >= nRewarded) {
       lap();
     }
   }
