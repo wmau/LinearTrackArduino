@@ -23,7 +23,7 @@ boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
 int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
 
 // define length of recording here (ms).
-unsigned long duration = 20000;
+unsigned long duration = 1200000;
 
 // number of ports and misc variables.
 char handshake;
@@ -47,12 +47,7 @@ void advance_miniscope_frame() {
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
 void write_timestamp(String val) {
-  Serial.print(val);
-  Serial.print(", ");
-  Serial.print(miniscope_frame);  //miniscope frame number. 
-  Serial.print(", ");
-  Serial.print(String(millis())); //timestamp in ms (relative to Arduino reboot).
-  Serial.println();
+  Serial.println(val + ", " + miniscope_frame + ", " + String(millis()));
 }
 
 // function for writing lick timestamps.
@@ -149,7 +144,6 @@ void setup() {
     digitalWrite(valves[j], HIGH);
     pinMode(valves[j], OUTPUT);
   }
-
 
   // define the miniscope pin and make an interrupt for counting miniscope frames.
   pinMode(miniscope_pin, INPUT_PULLUP);
