@@ -88,8 +88,6 @@ void lap() {
   for (int c = 0; c < nSensors; c++) {
     justdrank[c] = false;
   }
-
-  write_timestamp("Lap");
 }
 
 
