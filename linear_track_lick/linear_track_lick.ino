@@ -170,13 +170,13 @@ void setup() {
   // any operations for about 1.4 seconds. This is measured in the variable
   // called "offset". 
 
+  // begin the Miniscope recording. 
+  start_recording();
+  
   // print the current timestamp (in milliseconds) relative to when the Arduino
   // rebooted (from Python sync). 
   offset = millis();
   Serial.println(offset);
-
-  // begin the Miniscope recording. 
-  start_recording();
 }
 
 // ***************** LOOPITY LOOP ***************
