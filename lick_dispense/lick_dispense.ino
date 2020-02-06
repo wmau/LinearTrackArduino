@@ -9,7 +9,9 @@ int sensors[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
-int pumpOpen = 200;
+//int pumpOpen = 200;
+int pumpOpen = 15;
+//int pumpOpen = 1000;
 uint16_t curr_touched;
 
 int nSensors = sizeof(sensors) / sizeof(int);
