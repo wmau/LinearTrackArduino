@@ -31,7 +31,7 @@ int nSensors = sizeof(valves) / sizeof(valves[0]);
 int nVisits = 0;          //number of visits this lap.
 int i = 0;                //for iteration.
 bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
-int miniscope_frame = 0;  //miniscope frame counter.
+unsigned int miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
 
