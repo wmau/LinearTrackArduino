@@ -34,6 +34,8 @@ bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were dr
 unsigned int miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
+unsigned long ms;         //for timestamping.
+unsigned int curr_frame;  //for timestamping.
 
 // define capacitive sensor stuff.
 Adafruit_MPR121 cap = Adafruit_MPR121();
@@ -47,7 +49,10 @@ void advance_miniscope_frame() {
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
 void write_timestamp(String val) {
-  Serial.println(val + ", " + miniscope_frame + ", " + String(millis()));
+  ms = millis();
+  curr_frame = miniscope_frame;
+  String str = val + ", " + curr_frame + ", " + String(ms);
+  Serial.println(str);
 }
 
 // function for writing lick timestamps.
