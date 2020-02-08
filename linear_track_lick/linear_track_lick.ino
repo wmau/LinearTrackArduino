@@ -35,6 +35,7 @@ unsigned int miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
 unsigned long ms;         //for timestamping.
+unsigned int previous_frame;   //for timestamping.
 unsigned int curr_frame;  //for timestamping.
 
 // define capacitive sensor stuff.
@@ -48,16 +49,21 @@ void advance_miniscope_frame() {
 }
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
-void write_timestamp(String val) {
+void write_timestamp(signed int val) {
   ms = millis();
   curr_frame = miniscope_frame;
-  String str = val + ", " + curr_frame + ", " + String(ms);
-  Serial.println(str);
+
+  if ((curr_frame != previous_frame) || (val == -1)){
+    String str = String(val) + ", " + curr_frame + ", " + String(ms);
+    Serial.println(str);
+  }
+
+  previous_frame = curr_frame;
 }
 
 // function for writing lick timestamps.
 void record_lick() {
-  write_timestamp(String(i));
+  write_timestamp(i);
 }
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
@@ -67,7 +73,7 @@ void dispense_water(int valve) {
   digitalWrite(valve, HIGH);
 
   // Also tell computer that water was delivered. 
-  write_timestamp("Water");
+  write_timestamp(-1);
 }
 
 // Function for counting number of visits this lap.
@@ -208,7 +214,6 @@ void loop() {
       if (rewarded[i] & !justdrank[i]) {
         //Dispense water.
         dispense_water(valves[i]);
-        delay(30);
         lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Flag port after drinking.
