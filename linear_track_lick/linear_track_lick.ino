@@ -16,7 +16,7 @@ int trigger_pin = 12;
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {0, 0, 1, 0, 0, 1, 0, 1};    //modify as needed
+boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
 //boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
