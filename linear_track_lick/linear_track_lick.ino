@@ -7,36 +7,37 @@
 #endif
 
 //define miniscope syncing pin (must be 2 on Arduino Uno). Do not use 13 on Uno.
-int miniscope_pin = 2;
+const int miniscope_pin = 2;
 
 //define pin for triggering acquisition from DAQ box. Do not use 13 on Uno.
-int trigger_pin = 12;
+const int trigger_pin = 12;
 
 // define pins corresponding to relays/solenoids/water ports here.
-int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
+const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
 //boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
 boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
-int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
+const int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
 
 // define length of recording here (ms).
-unsigned long duration = 1200000;
+const unsigned long duration = 1200000;
 
 // number of ports and misc variables.
-char handshake;
-int nSensors = sizeof(valves) / sizeof(valves[0]);
-int nVisits = 0;          //number of visits this lap.
-int i = 0;                //for iteration.
-bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
-unsigned int miniscope_frame = 0;  //miniscope frame counter.
+volatile char handshake;
+const int nSensors = sizeof(valves) / sizeof(valves[0]);
+volatile int nVisits = 0;          //number of visits this lap.
+volatile int i = 0;                //for iteration.
+volatile bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
+volatile unsigned int miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
-unsigned long ms;         //for timestamping.
-unsigned int previous_frame;   //for timestamping.
-unsigned int curr_frame;  //for timestamping.
+volatile unsigned long ms;         //for timestamping.
+volatile unsigned int previous_frame;   //for timestamping.
+volatile unsigned int curr_frame;  //for timestamping.
+String str;
 
 // define capacitive sensor stuff.
 Adafruit_MPR121 cap = Adafruit_MPR121();
@@ -54,7 +55,16 @@ void write_timestamp(signed int val) {
   curr_frame = miniscope_frame;
 
   if ((curr_frame != previous_frame) || (val == -1)){
-    String str = String(val) + ", " + curr_frame + ", " + String(ms);
+//    Serial.print(val);
+//    Serial.print(', ');
+//    Serial.print(curr_frame);
+//    Serial.print(', ');
+//    Serial.println(ms);
+
+//    sprintf(buffer, "%d, %u, %u", val, curr_frame, ms);
+//    Serial.println(buffer);
+
+    str = String(val) + ", " + curr_frame + ", " + String(ms);
     Serial.println(str);
   }
 
@@ -68,6 +78,7 @@ void record_lick() {
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
 void dispense_water(int valve) {
+  
   digitalWrite(valve, LOW);
   delay(pumpOpen);  // open for this long (ms).
   digitalWrite(valve, HIGH);
@@ -130,7 +141,7 @@ void stop_recording() {
 }
 
 // define record_lick threading.
-TimedAction lickThread = TimedAction(35, record_lick);
+//TimedAction lickThread = TimedAction(35, record_lick);
 
 // ***************** SETUP ***************
 void setup() {
@@ -214,7 +225,7 @@ void loop() {
       if (rewarded[i] & !justdrank[i]) {
         //Dispense water.
         dispense_water(valves[i]);
-        lickThread.check(); // This lets you write lick events while the solenoid is open.
+        //lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Flag port after drinking.
         justdrank[i] = 1;
