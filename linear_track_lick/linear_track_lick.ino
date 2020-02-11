@@ -16,7 +16,7 @@ const int trigger_pin = 12;
 const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {0, 0, 1, 0, 0, 1, 0, 1};    //modify as needed
+boolean rewarded[] = {0, 1, 0, 0, 0, 1, 0, 0};    //modify as needed
 //boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
@@ -37,7 +37,6 @@ unsigned long offset;     //time in between Arduino reboot and first action it c
 volatile unsigned long ms;         //for timestamping.
 volatile unsigned int previous_frame;   //for timestamping.
 volatile unsigned int curr_frame;  //for timestamping.
-char buffer[100]; 
 String str;
 
 // define capacitive sensor stuff.
@@ -79,6 +78,7 @@ void record_lick() {
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
 void dispense_water(int valve) {
+  
   digitalWrite(valve, LOW);
   delay(pumpOpen);  // open for this long (ms).
   digitalWrite(valve, HIGH);
@@ -141,7 +141,7 @@ void stop_recording() {
 }
 
 // define record_lick threading.
-TimedAction lickThread = TimedAction(35, record_lick);
+//TimedAction lickThread = TimedAction(35, record_lick);
 
 // ***************** SETUP ***************
 void setup() {
@@ -225,7 +225,7 @@ void loop() {
       if (rewarded[i] & !justdrank[i]) {
         //Dispense water.
         dispense_water(valves[i]);
-        lickThread.check(); // This lets you write lick events while the solenoid is open.
+        //lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Flag port after drinking.
         justdrank[i] = 1;
