@@ -16,8 +16,8 @@ int trigger_pin = 12;
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
-//boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
+//boolean rewarded[] = {0, 0, 1, 0, 0, 0, 0, 1};    //modify as needed
+boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
 int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
@@ -45,7 +45,7 @@ uint16_t curr_touched = 0;
 // function for advancing miniscope frames.
 void advance_miniscope_frame() {
   miniscope_frame += 1;
-  //Serial.println(String(miniscope_frame)); //debugging purposes. 
+  Serial.println(String(miniscope_frame)); //debugging purposes. 
 }
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
@@ -86,7 +86,7 @@ void count_visits() {
     nVisits += val;
 
     // If there have been N visits, reset the counts for each well.
-    if (nVisits >= nRewarded) {
+    if (nVisits >= 5) {
       lap();
     }
   }
