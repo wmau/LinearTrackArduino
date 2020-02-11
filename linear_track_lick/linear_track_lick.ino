@@ -31,7 +31,7 @@ const int nSensors = sizeof(valves) / sizeof(valves[0]);
 volatile int nVisits = 0;          //number of visits this lap.
 volatile int i = 0;                //for iteration.
 volatile bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
-volatile unsigned int miniscope_frame = 0;  //miniscope frame counter.
+volatile uint_fast16_t miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
 volatile unsigned long ms;         //for timestamping.
@@ -45,7 +45,7 @@ uint16_t curr_touched = 0;
 
 // function for advancing miniscope frames.
 void advance_miniscope_frame() {
-  miniscope_frame += 1;
+  miniscope_frame++;
   //Serial.println(String(miniscope_frame)); //debugging purposes. 
 }
 
