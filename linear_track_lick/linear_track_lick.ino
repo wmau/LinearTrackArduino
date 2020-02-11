@@ -46,7 +46,7 @@ uint16_t curr_touched = 0;
 // function for advancing miniscope frames.
 void advance_miniscope_frame() {
   miniscope_frame += 1;
-  Serial.println(String(miniscope_frame)); //debugging purposes. 
+  //Serial.println(String(miniscope_frame)); //debugging purposes. 
 }
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
