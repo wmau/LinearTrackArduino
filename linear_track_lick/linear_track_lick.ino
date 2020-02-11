@@ -47,6 +47,7 @@ uint16_t curr_touched = 0;
 void advance_miniscope_frame() {
   miniscope_frame++;
   //Serial.println(String(miniscope_frame)); //debugging purposes. 
+}
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
 void write_timestamp(signed int val) {
