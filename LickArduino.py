@@ -4,7 +4,6 @@ import time
 import threading
 import os
 
-
 # This is the default port from Will's desktop computer.
 # Change as needed to correspond to connected Arduino.
 # You can find the appropriate port with the Arduino IDE when you
@@ -63,7 +62,7 @@ def initialize(com_port=default_port):
     return ser, t, clock_t
 
 def read_Arduino(com_port=default_port,
-                 directory=r'F:/Data/Will/Test'):
+                 directory=r'F:\Data\Will\Test'):
     """
     Read Arduino serial writes and saves to a txt file continuously.
     Arduino must be plugged in or you will error.
@@ -90,36 +89,39 @@ def read_Arduino(com_port=default_port,
 
     # Keeps going until you interrupt with Ctrl+C.
     data_stream = []
-    # try:
-    while True:
-        if terminate == 'q':
-            print('success')
-            with open(fname, 'wb') as file:
-                for line in data_stream:
-                    file.write(line)
-            ser.close()
-            break
+    try:
 
-        # Read serial port.
-        data = ser.readline()
+        while True:
+            # if terminate == 'q':
+            #     print('success')
+            #     with open(fname, 'wb') as file:
+            #         for line in data_stream:
+            #             file.write(line)
+            #     ser.close()
+            #     break
 
-        # If there's incoming data, write line to txt file.
-        if data:
-            data_stream.append(data)
+            # Read serial port.
+            data = ser.readline()
 
-    # except:
-    #     pass
-    #     print('test')
-    #     with open(fname, 'wb') as file:
-    #         for line in data_stream:
-    #             file.write(line)
-    #     ser.close()
+            # If there's incoming data, write line to txt file.
+            if data:
+                with open(fname, 'ab+') as file:
+                #data_stream.append(data)
+                    file.write(data)
 
-            #file.close()
-        # finally:
+    except:
+        #     pass
+        #     print('test')
         #     with open(fname, 'wb') as file:
         #         for line in data_stream:
         #             file.write(line)
+        ser.close()
+
+                #file.close()
+            # finally:
+            #     with open(fname, 'wb') as file:
+            #         for line in data_stream:
+            #             file.write(line)
 
 
 def main():
@@ -132,6 +134,8 @@ def main():
     main_event.start()
 
     terminate = input()
+
+
 
 
 if __name__ == '__main__':
