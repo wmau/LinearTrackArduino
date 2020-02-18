@@ -16,8 +16,8 @@ const int trigger_pin = 12;
 const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-//boolean rewarded[] = {1, 0, 1, 0, 0, 0, 0, 0};    //modify as needed
-const boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
+boolean rewarded[] = {0, 1, 0, 0, 1, 0, 0, 0};    //modify as needed
+//const boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
 const int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
@@ -67,9 +67,8 @@ void write_timestamp(volatile int_fast8_t val) {
 //    Serial.print(', ');
 //    Serial.println(ms);
 
-    sprintf(buffer, "%d, %u, %u", val, curr_frame, ms);
+    sprintf(buffer, "%d, %u, %lu", val, curr_frame, ms);
     Serial.println(buffer);
-
   }
 
   previous_frame = curr_frame;
@@ -97,23 +96,24 @@ void count_visits() {
   
   // Sum across wells.
   for (volatile uint_fast8_t well = 0; well < nSensors; well++) {
-    volatile uint_fast8_t val = justdrank[well];
-    nVisits += val;
+    nVisits += justdrank[well];
+  }
 
-    // If there have been N visits, reset the counts for each well.
-    if (nVisits >= 2) {
-      lap();
-    }
+  // If there have been N-1 visits, reset the counts for each well.
+  if (nVisits >= nRewarded-1) {
+    lap();
   }
 }
 
-// Function that resets the visit counts for each well and also 
-// writes "Lap" to Serial port.
+// Function that resets the visit counts for each well.
 void lap() {
   //resets all drink flags. 
   for (volatile uint_fast8_t c = 0; c < nSensors; c++) {
     justdrank[c] = false;
   }
+
+  //Debugging purposes.
+  //Serial.println("Lap");
 }
 
 
@@ -145,7 +145,7 @@ void stop_recording() {
 }
 
 // define record_lick threading.
-TimedAction lickThread = TimedAction(35, record_lick);
+//TimedAction lickThread = TimedAction(35, record_lick);
 
 // ***************** SETUP ***************
 void setup() {
@@ -226,17 +226,16 @@ void loop() {
 
       //if port should be rewarded and
       //if mouse did not just drink from this port 
-      if (rewarded[i] & !justdrank[i]) {
+      if (rewarded[i] & !justdrank[i]) {    
         //Dispense water.
         dispense_water(valves[i]);
-        lickThread.check(); // This lets you write lick events while the solenoid is open.
-
-        //Flag port after drinking.
-        justdrank[i] = 1;
+        //lickThread.check(); // This lets you write lick events while the solenoid is open.
 
         //Find total number of visits and reset port mask if lap elapsed.
         count_visits();
-
+          
+        //Flag port after drinking.
+        justdrank[i] = 1;
       }
     }
   }
