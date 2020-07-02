@@ -88,7 +88,7 @@ def read_Arduino(com_port=default_port,
         os.mkdir(os.path.join(directory, date_str))
 
     # Keeps going until you interrupt with Ctrl+C.
-    data_stream = []
+    #data_stream = []
     try:
 
         while True:

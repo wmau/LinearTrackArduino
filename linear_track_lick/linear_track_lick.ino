@@ -10,17 +10,17 @@
 const int miniscope_pin = 2;
 
 //define pin for triggering acquisition from DAQ box. Do not use 13 on Uno.
-const int trigger_pin = 12;
+const int trigger_pin = A1;
 
 // define pins corresponding to relays/solenoids/water ports here.
 const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {0, 1, 0, 0, 1, 0, 0, 0};    //modify as needed
+boolean rewarded[] = {1, 1, 0, 0, 0, 0, 0, 0};    //modify as needed
 //const boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
-const int pumpOpen = 15; //15 works well for my setup (depends on height of reservoir and volume)
+const int pumpOpen = 20; //15 works well for my setup (depends on height of reservoir and volume)
 
 // define length of recording here (ms).
 const unsigned long duration = 1200000;
@@ -135,6 +135,7 @@ void recalibrate() {
 
 // function for triggering Miniscope recording. Make sure "Trigger Ext" is checked.
 void start_recording() {
+  pinMode(trigger_pin, OUTPUT);
   digitalWrite(trigger_pin, HIGH);
 }
 
@@ -175,7 +176,7 @@ void setup() {
 
 
   // set capacitive sensor thresholds here. 
-  cap.setThresholds(3, 2);
+  cap.setThresholds(4, 2);
 
   // count number of rewarded ports.
   for (i = 0; i < nSensors; i++){
