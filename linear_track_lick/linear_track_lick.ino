@@ -28,16 +28,15 @@ const unsigned long duration = 1200000;
 // number of ports and misc variables.
 char handshake;
 const int nSensors = sizeof(valves) / sizeof(valves[0]);
-volatile uint_fast8_t nVisits = 0;          //number of visits this lap.
-volatile uint_fast8_t i = 0;                //for iteration.
-volatile bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
+uint_fast8_t nVisits = 0;          //number of visits this lap.
+uint_fast8_t i = 0;                //for iteration.
+bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
 volatile uint_fast16_t miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
-volatile unsigned long ms;         //for timestamping.
-volatile uint_fast16_t previous_frame;   //for timestamping.
-volatile uint_fast16_t curr_frame;  //for timestamping.
-//String str;
+unsigned long ms;         //for timestamping.
+uint_fast16_t previous_frame;   //for timestamping.
+uint_fast16_t curr_frame;  //for timestamping.
 String data; 
 String timestamp;
 const int buffer_size = 800;
@@ -45,7 +44,7 @@ char buffer[buffer_size];
 
 // define capacitive sensor stuff.
 Adafruit_MPR121 cap = Adafruit_MPR121();
-volatile uint_fast16_t curr_touched = 0;
+uint_fast16_t curr_touched = 0;
 
 // function for advancing miniscope frames.
 void advance_miniscope_frame() {
@@ -54,7 +53,7 @@ void advance_miniscope_frame() {
 }
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
-void write_timestamp(volatile int_fast8_t val) {
+void write_timestamp(int_fast8_t val) {
   ms = millis();
   curr_frame = miniscope_frame;
   data = String(val);
@@ -80,7 +79,7 @@ void record_lick() {
 }
 
 // Function for dispensing water. Writes LOW to a pin that opens the solenoid.
-void dispense_water(volatile uint_fast8_t valve) {
+void dispense_water(uint_fast8_t valve) {
   
   digitalWrite(valve, LOW);
   delay(pumpOpen);  // open for this long (ms).
@@ -95,7 +94,7 @@ void count_visits() {
   nVisits = 0;    //reset counter each time. 
   
   // Sum across wells.
-  for (volatile uint_fast8_t well = 0; well < nSensors; well++) {
+  for (uint_fast8_t well = 0; well < nSensors; well++) {
     nVisits += justdrank[well];
   }
 
@@ -108,7 +107,7 @@ void count_visits() {
 // Function that resets the visit counts for each well.
 void lap() {
   //resets all drink flags. 
-  for (volatile uint_fast8_t c = 0; c < nSensors; c++) {
+  for (uint_fast8_t c = 0; c < nSensors; c++) {
     justdrank[c] = false;
   }
 
@@ -122,7 +121,7 @@ void lap() {
 void recalibrate() {
     // Clean the I2C Bus
     pinMode(A5, OUTPUT);
-    for (volatile uint_fast8_t k = 0; k < 8; k++) {
+    for (uint_fast8_t k = 0; k < 8; k++) {
      
       // Toggle the SCL pin eight times to reset any errant commands received by the slave boards.
       digitalWrite(A5, HIGH);
