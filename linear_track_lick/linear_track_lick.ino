@@ -34,7 +34,7 @@ bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were dr
 volatile uint_fast16_t miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
-unsigned long ms;         //for timestamping.
+volatile unsigned long ms;         //for timestamping.
 uint_fast16_t previous_frame;   //for timestamping.
 uint_fast16_t curr_frame;  //for timestamping.
 String data; 
@@ -54,7 +54,7 @@ void advance_miniscope_frame() {
 
 // function for writing information to serial port (converted to txt by Python function read_Arduino())
 void write_timestamp(int_fast8_t val) {
-  ms = millis();
+  //ms = millis();
   curr_frame = miniscope_frame;
   data = String(val);
   timestamp = String(ms);
@@ -66,7 +66,7 @@ void write_timestamp(int_fast8_t val) {
 //    Serial.print(', ');
 //    Serial.println(ms);
 
-    sprintf(buffer, "%d, %u, %lu", val, curr_frame, ms);
+    sprintf(buffer, "%d, %u", val, curr_frame);
     Serial.println(buffer);
   }
 
@@ -134,7 +134,6 @@ void recalibrate() {
 
 // function for triggering Miniscope recording. Make sure "Trigger Ext" is checked.
 void start_recording() {
-  pinMode(trigger_pin, OUTPUT);
   digitalWrite(trigger_pin, HIGH);
 }
 
@@ -168,11 +167,13 @@ void setup() {
     digitalWrite(valves[i], HIGH);
     pinMode(valves[i], OUTPUT);
   }
-
+  
   // define the miniscope pin and make an interrupt for counting miniscope frames.
   pinMode(miniscope_pin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(miniscope_pin), advance_miniscope_frame, CHANGE);
 
+  // define the trigger pin.
+  pinMode(trigger_pin, OUTPUT);
 
   // set capacitive sensor thresholds here. 
   cap.setThresholds(4, 2);
