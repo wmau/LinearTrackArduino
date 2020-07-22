@@ -34,7 +34,7 @@ bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were dr
 volatile uint_fast16_t miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
-volatile unsigned long ms;         //for timestamping.
+//volatile unsigned long ms;         //for timestamping.
 uint_fast16_t previous_frame;   //for timestamping.
 uint_fast16_t curr_frame;  //for timestamping.
 String data; 
@@ -57,7 +57,7 @@ void write_timestamp(int_fast8_t val) {
   //ms = millis();
   curr_frame = miniscope_frame;
   data = String(val);
-  timestamp = String(ms);
+  //timestamp = String(ms);
 
   if ((curr_frame != previous_frame) || (val == -1)){
 //    Serial.print(val);

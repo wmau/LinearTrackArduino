@@ -74,66 +74,41 @@ def read_Arduino(com_port=default_port,
 
 
     """
-    # Initialize Arduino connection.
-    global terminate
     ser, t, clock_t = initialize(com_port)
-
-    # File name building.
-    date_str = clock_t.strftime('%Y-%b-%d')
-    time_string = clock_t.strftime('H%H_M%M_S%S.%f')[:-2] + ' ' + t.decode('utf-8')[:-2]
-    fname = os.path.join(directory, date_str, time_string + '.txt')
-
-    # Try to make file. If directory doesn't exist, make it.
-    if not os.path.isdir(os.path.join(directory, date_str)):
-        os.mkdir(os.path.join(directory, date_str))
+    fname = make_timestamp_fname(directory, clock_t, t)
 
     # Keeps going until you interrupt with Ctrl+C.
-    #data_stream = []
     try:
-
         while True:
-            # if terminate == 'q':
-            #     print('success')
-            #     with open(fname, 'wb') as file:
-            #         for line in data_stream:
-            #             file.write(line)
-            #     ser.close()
-            #     break
-
             # Read serial port.
             data = ser.readline()
 
             # If there's incoming data, write line to txt file.
             if data:
+                timestamp = round((datetime.now() - clock_t).total_seconds() * 1000)
+                data_str = data.decode('utf-8')
+                port_and_frame = data_str.split('\r\n')[0]
+                data = (port_and_frame + ', ' +
+                     str(timestamp) + '\r\n').encode('utf-8')
+
                 with open(fname, 'ab+') as file:
-                #data_stream.append(data)
                     file.write(data)
 
     except:
-        #     pass
-        #     print('test')
-        #     with open(fname, 'wb') as file:
-        #         for line in data_stream:
-        #             file.write(line)
         ser.close()
 
-                #file.close()
-            # finally:
-            #     with open(fname, 'wb') as file:
-            #         for line in data_stream:
-            #             file.write(line)
 
+def make_timestamp_fname(directory, clock_t, t):
+    # File name building.
+    date_str = clock_t.strftime('%Y-%b-%d')
+    time_string = clock_t.strftime('H%H_M%M_S%S.%f')[:-2] + ' ' + t.decode('utf-8')[:-2]
+    fname = os.path.join(directory, date_str, time_string + '.txt')
 
-def main():
-    global terminate
+    # If directory doesn't exist, make it.
+    if not os.path.isdir(os.path.join(directory, date_str)):
+        os.mkdir(os.path.join(directory, date_str))
 
-    run_event = threading.Event()
-    run_event.set()
-
-    main_event = threading.Thread(target=read_Arduino)
-    main_event.start()
-
-    terminate = input()
+    return fname
 
 
 
