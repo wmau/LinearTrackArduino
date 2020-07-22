@@ -8,7 +8,7 @@ import os
 # Change as needed to correspond to connected Arduino.
 # You can find the appropriate port with the Arduino IDE when you
 # have an Arduino connected to the USB.
-default_port = 'COM3'
+default_port = 'COM4'
 terminate = ''
 
 def list_COMports():

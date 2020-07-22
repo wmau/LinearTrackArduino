@@ -16,14 +16,14 @@ const int trigger_pin = A1;
 const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {1, 1, 0, 0, 0, 0, 0, 0};    //modify as needed
+boolean rewarded[] = {0, 0, 0, 1, 0, 0, 0, 1};    //modify as needed
 //const boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
 const int pumpOpen = 20; //15 works well for my setup (depends on height of reservoir and volume)
 
 // define length of recording here (ms).
-const unsigned long duration = 1200000;
+const unsigned long duration = 1800000; //1200000 for 20 min
 
 // number of ports and misc variables.
 char handshake;
@@ -100,7 +100,7 @@ void count_visits() {
   }
 
   // If there have been N-1 visits, reset the counts for each well.
-  if (nVisits >= nRewarded-1) {
+  if (nVisits >= 1) {
     lap();
   }
 }
@@ -176,7 +176,7 @@ void setup() {
 
 
   // set capacitive sensor thresholds here. 
-  cap.setThresholds(4, 2);
+  cap.setThresholds(3, 2);
 
   // count number of rewarded ports.
   for (i = 0; i < nSensors; i++){
