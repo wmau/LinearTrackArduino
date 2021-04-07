@@ -11,6 +11,7 @@ import winsound
 # have an Arduino connected to the USB.
 default_port = 'COM4'
 terminate = ''
+click_fpath = r'C:\Users\Tristan\Documents\GitHub\LinearTrackArduino\Click.wav'
 
 def list_COMports():
     """
@@ -96,7 +97,7 @@ def read_Arduino(com_port=default_port,
                     file.write(data)
 
                 if '-1' in data_str:
-                    winsound.PlaySound(r'C:\Users\Tristan\DAQ Config Files\Will\Click.wav',
+                    winsound.PlaySound(click_fpath,
                                        winsound.SND_ASYNC)
 
     except:
