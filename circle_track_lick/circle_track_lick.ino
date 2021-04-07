@@ -13,16 +13,17 @@ const int miniscope_pin = 2;
 const int trigger_pin = A1;
 
 // define pins corresponding to relays/solenoids/water ports here.
-const int valves[] = {3, 4};
+const int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 // define rewarded relays/solenoids/water ports here.
-boolean rewarded[] = {1, 1};    //modify as needed
+boolean rewarded[] = {0, 1, 0, 0, 0, 1, 0, 0};    //modify as needed
+//const boolean rewarded[] = {1, 1, 1, 1, 1, 1, 1, 1};  //reward everything
 
 // define duration of solenoid opening (ms).
-const int pumpOpen = 30; //40 works well for my setup (depends on height of reservoir and volume)
+const int pumpOpen = 55; //40 works well for my setup (depends on height of reservoir and volume)
 
 // define length of recording here (ms).
-const unsigned long duration = 1200000; //1200000 for 20 min
+const unsigned long duration = 1800000; //1200000 for 20 min
 
 // number of ports and misc variables.
 int licksPerLap = 1;
@@ -30,7 +31,7 @@ char handshake;
 const int nSensors = sizeof(valves) / sizeof(valves[0]);
 uint_fast8_t nVisits = 0;          //number of visits this lap.
 uint_fast8_t i = 0;                //for iteration.
-bool justdrank[] = {0, 0};  //for tracking which ports were drank. 
+bool justdrank[] = {0, 0, 0, 0, 0, 0, 0, 0};  //for tracking which ports were drank. 
 volatile uint_fast16_t miniscope_frame = 0;  //miniscope frame counter.
 int nRewarded = 0;        //number of ports mouse needs to visit to reset ports.
 unsigned long offset;     //time in between Arduino reboot and first action it can perform.
@@ -176,7 +177,7 @@ void setup() {
   pinMode(trigger_pin, OUTPUT);
 
   // set capacitive sensor thresholds here. 
-  cap.setThresholds(10, 2);
+  cap.setThresholds(4, 2);
 
   // count number of rewarded ports.
   for (i = 0; i < nSensors; i++){
@@ -214,7 +215,7 @@ void loop() {
   }
 
   // recalibrate capacitive sensor to address possible noise. 
-  // recalibrate();
+  recalibrate();
   
   // get capacitive sensor input. 
   curr_touched = cap.touched();

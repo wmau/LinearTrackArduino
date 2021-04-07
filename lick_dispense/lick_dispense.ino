@@ -10,8 +10,8 @@ int sensors[] = {3, 4, 5, 6, 7, 8, 9, 10};
 int valves[] = {3, 4, 5, 6, 7, 8, 9, 10};
 
 //int pumpOpen = 200;
-int pumpOpen = 20;
-//int pumpOpen = 1000;
+//int pumpOpen = 30;
+int pumpOpen = 4000;
 uint16_t curr_touched;
 
 int nSensors = sizeof(sensors) / sizeof(int);
@@ -55,11 +55,11 @@ void setup() {
   }
 
   for (byte i = 0; i < nSensors; i++){
-    digitalWrite(valves[i], HIGH);
     pinMode(valves[i], OUTPUT);
+    digitalWrite(valves[i], LOW);
   }
 
-  cap.setThresholds(3, 2);
+  cap.setThresholds(6, 2);
 
 }
 
@@ -70,9 +70,9 @@ void loop() {
   
   for (byte i = 0; i < nSensors; i++){
     if (curr_touched & _BV(i)){
-      digitalWrite(valves[i], LOW);
-      delay(pumpOpen);
       digitalWrite(valves[i], HIGH);
+      delay(pumpOpen);
+      digitalWrite(valves[i], LOW);
 
       delay(500);
     }

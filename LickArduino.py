@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 import threading
 import os
+import winsound
 
 # This is the default port from Will's desktop computer.
 # Change as needed to correspond to connected Arduino.
@@ -93,6 +94,10 @@ def read_Arduino(com_port=default_port,
 
                 with open(fname, 'ab+') as file:
                     file.write(data)
+
+                if '-1' in data_str:
+                    winsound.PlaySound(r'C:\Users\Tristan\DAQ Config Files\Will\Click.wav',
+                                       winsound.SND_ASYNC)
 
     except:
         ser.close()
